@@ -1,122 +1,50 @@
-# TaskHubAPI - Complete OOP Implementation
+# TaskHubAPI - Comprehensive Documentation
 
-TaskHubAPI is a .NET 9 Web API project showcasing comprehensive **Object-Oriented Programming (OOP)** concepts, SOLID principles, and design patterns in a production-ready architecture.
+TaskHubAPI is a .NET 9 Web API project designed to provide task management capabilities. This project serves as the backend for managing tasks, users, and related operations with a clean architecture pattern.
 
-## 📚 Documentation
-
-| Document | Description | Purpose |
-|----------|-------------|---------|
-| **[� PROJECT_GUIDE.md](Documentation/PROJECT_GUIDE.md)** | Complete project guide | Project overview, setup, structure, features |
-| **[� API_DOCUMENTATION.md](Documentation/API_DOCUMENTATION.md)** | API reference | Endpoints, requests, responses, examples |
-| **[🎨 OOP_DOCUMENTATION.md](Documentation/OOP_DOCUMENTATION.md)** | OOP concepts guide | OOP pillars, SOLID, patterns, diagrams |
-
-**New to the project?** → Start with [PROJECT_GUIDE.md](Documentation/PROJECT_GUIDE.md)  
-**Need API details?** → See [API_DOCUMENTATION.md](Documentation/API_DOCUMENTATION.md)  
-**Learning OOP?** → See [OOP_DOCUMENTATION.md](Documentation/OOP_DOCUMENTATION.md)
+## Table of Contents
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+- [Detailed Code Documentation](#detailed-code-documentation)
+  - [Program.cs](#programcs)
+  - [Controllers](#controllers)
+  - [Models](#models)
+  - [DTOs](#dtos)
+  - [Data Layer](#data-layer)
+- [API Endpoints](#api-endpoints)
+- [Usage Examples](#usage-examples)
 
 ---
 
-## 📁 Project Structure
+## Overview
+
+TaskHubAPI is a RESTful web service that provides:
+- Complete CRUD operations for tasks and users
+- In-memory database for development and testing
+- Swagger/OpenAPI documentation
+- Clean separation of concerns with DTOs
+- Enum-based status and priority management
+
+## Architecture
+
+The project follows a layered architecture pattern:
 
 ```
 TaskHubAPI/
-│
-├── 📂 Controllers/          # HTTP Request Handlers
-├── 📂 Models/               # Domain Entities (Inheritance)
-├── 📂 Services/             # Business Logic Layer
-├── 📂 DTOs/                 # Data Transfer Objects
-├── 📂 Core/                 # Infrastructure Layer
-│   ├── Interfaces/         # Abstraction contracts
-│   ├── Repositories/       # Data access
-│   ├── Strategies/         # Pattern implementations
-│   └── Data/               # Database context
-├── 📂 Configuration/        # Application settings
-├── 📂 Documentation/        # All project documentation
-│   ├── PROJECT_GUIDE.md
-│   ├── API_DOCUMENTATION.md
-│   └── OOP_DOCUMENTATION.md
-│
-└── 📄 Program.cs            # Application entry point & DI configuration
-```
-
-**See [Documentation/PROJECT_GUIDE.md](Documentation/PROJECT_GUIDE.md) for detailed folder descriptions.**
-
-**📝 Note:** Infrastructure components (Interfaces, Repositories, Strategies, Data) are consolidated in `Core/` folder for better organization.
-
----
-
-## 🎨 OOP Concepts Implemented
-
-### ✅ All 4 OOP Pillars
-
-1. **🔒 Encapsulation**
-   - Private fields with public properties
-   - Automatic data normalization (emails, timestamps)
-   - Controlled access to internal state
-   - **Files**: `Models/User.cs`, `Models/TaskItem.cs`
-
-2. **🧬 Inheritance**
-   - BaseEntity → User, TaskItem
-   - Common properties (Id, CreatedAt, UpdatedAt)
-   - Code reuse and consistency
-   - **Files**: `Models/BaseEntity.cs`
-
-3. **🎭 Polymorphism**
-   - Method overriding (`Validate()`)
-   - Interface implementations
-   - Strategy pattern for validation
-   - **Files**: All interface implementations
-
-4. **🎨 Abstraction**
-   - Hide complexity behind interfaces
-   - Repository and Service abstractions
-   - Strategy pattern abstractions
-   - **Files**: All in `Interfaces/` folder
-
-### ✅ All 5 SOLID Principles
-
-- **S** - Single Responsibility (each class has one job)
-- **O** - Open/Closed (open for extension, closed for modification)
-- **L** - Liskov Substitution (subtypes are substitutable)
-- **I** - Interface Segregation (small, focused interfaces)
-- **D** - Dependency Inversion (depend on abstractions)
-
-### ✅ Design Patterns
-
-- **Repository Pattern** - Centralized data access
-- **Service Layer Pattern** - Business logic separation
-- **Strategy Pattern** - Interchangeable validation
-- **Dependency Injection** - Loose coupling
-
----
-
-## 🏗️ Architecture
-
-The project follows a **clean layered architecture**:
-
-```
-┌──────────────────────┐
-│   Controllers        │ ◄── HTTP Layer
-└──────────┬───────────┘
-           │ depends on
-┌──────────▼───────────┐
-│   Services           │ ◄── Business Logic
-└──────────┬───────────┘
-           │ depends on
-┌──────────▼───────────┐
-│   Repositories       │ ◄── Data Access
-└──────────┬───────────┘
-           │ uses
-┌──────────▼───────────┐
-│   DbContext          │ ◄── Database
-└──────────────────────┘
+├── Controllers/        # API endpoints and request handling
+├── Models/            # Domain entities and enums
+├── DTOs/              # Data Transfer Objects
+├── Data/              # Database context and configuration
+└── Program.cs         # Application entry point
 ```
 
 **Design Principles:**
-- **Separation of Concerns** - Each layer has one responsibility
-- **Dependency Inversion** - Layers depend on abstractions
-- **Interface-Based Programming** - Program to interfaces
-- **Testability** - Easy to mock and test
+- **Separation of Concerns**: Controllers handle HTTP concerns, models represent domain logic
+- **DTO Pattern**: Decouples API contracts from domain models
+- **Dependency Injection**: DbContext injected into controllers
+- **RESTful Design**: Standard HTTP verbs and status codes
 
 ## Technologies Used
 - **.NET 9** - Latest .NET framework

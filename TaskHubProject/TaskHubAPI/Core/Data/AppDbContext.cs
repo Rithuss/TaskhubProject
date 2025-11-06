@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskHubAPI.Models;
 
-namespace TaskHubAPI.Data
+namespace TaskHubAPI.Core.Data
 {
     public class AppDbContext : DbContext
     {

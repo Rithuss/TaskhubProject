@@ -1044,11 +1044,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Rithu\\Desktop\\TaskHubProject\\TaskHubProject\\TaskHubAPI\\TaskHubAPI.csproj",
+      "projectUniqueName": "C:\\Users\\Rithu\\Desktop\\TaskHubProject\\TaskHubProject\\TaskHubProject\\TaskHubProject\\TaskHubAPI\\TaskHubAPI.csproj",
       "projectName": "TaskHubAPI",
-      "projectPath": "C:\\Users\\Rithu\\Desktop\\TaskHubProject\\TaskHubProject\\TaskHubAPI\\TaskHubAPI.csproj",
+      "projectPath": "C:\\Users\\Rithu\\Desktop\\TaskHubProject\\TaskHubProject\\TaskHubProject\\TaskHubProject\\TaskHubAPI\\TaskHubAPI.csproj",
       "packagesPath": "C:\\Users\\Rithu\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Rithu\\Desktop\\TaskHubProject\\TaskHubProject\\TaskHubAPI\\obj\\",
+      "outputPath": "C:\\Users\\Rithu\\Desktop\\TaskHubProject\\TaskHubProject\\TaskHubProject\\TaskHubProject\\TaskHubAPI\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Rithu\\AppData\\Roaming\\NuGet\\NuGet.Config"
