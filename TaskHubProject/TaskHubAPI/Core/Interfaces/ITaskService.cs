@@ -48,9 +48,15 @@ namespace TaskHubAPI.Core.Interfaces
         Task<TaskItemDTO> CreateTaskAsync(CreateTaskItemDTO dto);
 
         /// <summary>
-        /// Update existing task
+        /// Update existing task (full update)
         /// </summary>
         Task<bool> UpdateTaskAsync(int id, CreateTaskItemDTO dto);
+
+        /// <summary>
+        /// Update task status only (partial update)
+        /// NEW METHOD - Enforces status transition rules
+        /// </summary>
+        Task<bool> UpdateTaskStatusAsync(int id, Models.TaskStatus newStatus);
 
         /// <summary>
         /// Delete task

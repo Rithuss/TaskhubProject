@@ -33,15 +33,57 @@ namespace TaskHubAPI.Controllers
 
         /// <summary>
         /// GET: api/tasks
-        /// Get all tasks - demonstrates service layer abstraction
+        /// Get all tasks with optional filtering and sorting
+        /// Supports query parameters: status, priority, dueDateFrom, dueDateTo, sortBy
         /// </summary>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskItemDTO>>> GetTasks()
+        public async Task<ActionResult<IEnumerable<TaskItemDTO>>> GetTasks(
+            [FromQuery] string? status = null,
+            [FromQuery] string? priority = null,
+            [FromQuery] DateTime? dueDateFrom = null,
+            [FromQuery] DateTime? dueDateTo = null,
+            [FromQuery] string? sortBy = null)
         {
             try
             {
                 var tasks = await _taskService.GetAllTasksAsync();
-                return Ok(tasks);
+
+                // Filter by status
+                if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<Models.TaskStatus>(status, true, out var statusEnum))
+                {
+                    tasks = tasks.Where(t => t.Status.Equals(status, StringComparison.OrdinalIgnoreCase));
+                }
+
+                // Filter by priority
+                if (!string.IsNullOrWhiteSpace(priority) && Enum.TryParse<TaskPriority>(priority, true, out var priorityEnum))
+                {
+                    tasks = tasks.Where(t => t.Priority.Equals(priority, StringComparison.OrdinalIgnoreCase));
+                }
+
+                // Filter by due date range
+                if (dueDateFrom.HasValue)
+                {
+                    tasks = tasks.Where(t => t.DueDate >= dueDateFrom.Value);
+                }
+                if (dueDateTo.HasValue)
+                {
+                    tasks = tasks.Where(t => t.DueDate <= dueDateTo.Value);
+                }
+
+                // Sort tasks
+                if (!string.IsNullOrWhiteSpace(sortBy))
+                {
+                    tasks = sortBy.ToLower() switch
+                    {
+                        "duedate" => tasks.OrderBy(t => t.DueDate),
+                        "duedate_desc" => tasks.OrderByDescending(t => t.DueDate),
+                        "priority" => tasks.OrderBy(t => t.Priority),
+                        "priority_desc" => tasks.OrderByDescending(t => t.Priority),
+                        _ => tasks
+                    };
+                }
+
+                return Ok(tasks.ToList());
             }
             catch (Exception ex)
             {
@@ -71,10 +113,11 @@ namespace TaskHubAPI.Controllers
         }
 
         /// <summary>
-        /// GET: api/tasks/user/{userId}
-        /// Get tasks by user - demonstrates business query in service layer
+        /// GET: api/users/{userId}/tasks
+        /// Get all tasks for a specific user
+        /// REQUIRED ENDPOINT - Was missing in original implementation
         /// </summary>
-        [HttpGet("user/{userId}")]
+        [HttpGet("/api/users/{userId}/tasks")]
         public async Task<ActionResult<IEnumerable<TaskItemDTO>>> GetTasksByUser(int userId)
         {
             try
@@ -175,7 +218,7 @@ namespace TaskHubAPI.Controllers
 
         /// <summary>
         /// PUT: api/tasks/{id}
-        /// Update task
+        /// Update task - Full update
         /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTask(int id, CreateTaskItemDTO dto)
@@ -204,6 +247,40 @@ namespace TaskHubAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while updating the task.", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// PATCH: api/tasks/{id}/status
+        /// Update task status only - Partial update
+        /// REQUIRED ENDPOINT - Was missing in original implementation
+        /// Enforces status transition rules: Pending → InProgress → Completed
+        /// </summary>
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> UpdateTaskStatus(int id, [FromBody] UpdateTaskStatusDTO dto)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(dto?.Status))
+                    return BadRequest(new { message = "Status is required." });
+
+                // Validate status value
+                if (!Enum.TryParse<Models.TaskStatus>(dto.Status, true, out var newStatus))
+                    return BadRequest(new { message = $"Invalid status: {dto.Status}. Must be Pending, InProgress, or Completed." });
+
+                var success = await _taskService.UpdateTaskStatusAsync(id, newStatus);
+                if (!success)
+                    return NotFound(new { message = $"Task with ID {id} not found." });
+
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the task status.", error = ex.Message });
             }
         }
 

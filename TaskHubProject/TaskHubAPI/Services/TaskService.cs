@@ -150,6 +150,11 @@ namespace TaskHubAPI.Services
             if (!Enum.TryParse<TaskPriority>(dto.Priority, out var priority))
                 throw new ArgumentException($"Invalid priority: {dto.Priority}");
 
+            // Validate status transition
+            if (!IsValidStatusTransition(task.Status, status))
+                throw new InvalidOperationException($"Invalid status transition from {task.Status} to {status}. " +
+                    "Valid transitions: Pending → InProgress → Completed");
+
             // Use domain method to update (ENCAPSULATION)
             task.UpdateDetails(dto.Title, dto.Description, status, priority, dto.DueDate);
             task.UserId = dto.UserId;
@@ -157,6 +162,35 @@ namespace TaskHubAPI.Services
             // Validate
             if (!task.Validate())
                 throw new InvalidOperationException("Task validation failed.");
+
+            await _taskRepository.UpdateAsync(task);
+            await _taskRepository.SaveChangesAsync();
+
+            return true;
+        }
+
+        /// <summary>
+        /// Update task status only - NEW METHOD
+        /// Enforces status transition rules: Pending → InProgress → Completed
+        /// Demonstrates BUSINESS RULE ENFORCEMENT
+        /// </summary>
+        public async Task<bool> UpdateTaskStatusAsync(int id, Models.TaskStatus newStatus)
+        {
+            var task = await _taskRepository.GetByIdAsync(id);
+            if (task == null)
+                return false;
+
+            // Enforce status transition rules
+            if (!IsValidStatusTransition(task.Status, newStatus))
+            {
+                throw new InvalidOperationException(
+                    $"Invalid status transition from {task.Status} to {newStatus}. " +
+                    "Valid transitions: Pending → InProgress → Completed. " +
+                    "You cannot move backwards or skip states.");
+            }
+
+            task.Status = newStatus;
+            task.MarkAsUpdated();
 
             await _taskRepository.UpdateAsync(task);
             await _taskRepository.SaveChangesAsync();
@@ -185,6 +219,29 @@ namespace TaskHubAPI.Services
         public async Task<bool> TaskExistsAsync(int id)
         {
             return await _taskRepository.ExistsAsync(id);
+        }
+
+        /// <summary>
+        /// Validate status transitions - BUSINESS RULE ENFORCEMENT
+        /// Enforces: Pending → InProgress → Completed
+        /// Cannot skip states or go backwards
+        /// </summary>
+        private bool IsValidStatusTransition(Models.TaskStatus currentStatus, Models.TaskStatus newStatus)
+        {
+            // If status is not changing, it's valid
+            if (currentStatus == newStatus)
+                return true;
+
+            // Define valid transitions
+            return (currentStatus, newStatus) switch
+            {
+                (Models.TaskStatus.Pending, Models.TaskStatus.InProgress) => true,
+                (Models.TaskStatus.InProgress, Models.TaskStatus.Completed) => true,
+                (Models.TaskStatus.Pending, Models.TaskStatus.Completed) => false, // Cannot skip InProgress
+                (Models.TaskStatus.InProgress, Models.TaskStatus.Pending) => false, // Cannot go backwards
+                (Models.TaskStatus.Completed, _) => false, // Cannot change from Completed
+                _ => false
+            };
         }
 
         /// <summary>
